@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Cepolyglotte : On-the-fly translation of NIB files on Mac OS X " />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Cepolyglotte</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/Ceroce/CePolyglotte">Fork Me on GitHub</a>
+
+          <h1 id="project_title">Cepolyglotte</h1>
+          <h2 id="project_tagline">On-the-fly translation of NIB files on Mac OS X </h2>
+
+          <section id="downloads">
+            <a class="zip_download_link" href="https://github.com/Ceroce/CePolyglotte/zipball/master">Download this project as a .zip file</a>
+            <a class="tar_download_link" href="https://github.com/Ceroce/CePolyglotte/tarball/master">Download this project as a tar.gz file</a>
+          </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <p>CePolyglotte performs on-the-fly translation of NIB files.</p>
+
+<h3>Supported OS X versions</h3>
+
+<p>CePolyglotte is used in an application of my own that runs under Mac OS 10.5, 10.6 and 10.7.</p>
+
+<h1>Purpose</h1>
+
+<p>When translating a Mac application, Apple proposes you create a translated version of every XIB file. For instance, if an application sported English and French, you would have two directories (en.lproj and fr.lproj) each one containing translated versions of the XIBs.</p>
+
+<p>This principle provides a precise control of the layout of views for every language, however it has three drawbacks:</p>
+
+<ul>
+<li>NIB files get multiplied, which makes your app fat.</li>
+<li>The translator needs to use Xcode which is difficult and error prone.</li>
+<li>Every time a change is made to a XIB, the change needs be made in every localised versions of the XIB.</li>
+</ul><p>This third reason makes translation unsustainable: imagine you add a checkbox in the English version and set bindings. You would have to do the same for every translated versions of the XIB.
+My own experience is, because I may change a XIB a lot for a single revision, I would better delete the translated XIBs, do my work on the English version, and translate the XIB again from zero.</p>
+
+<p>CePolyglotte is a response to these problems: once a XIB is loaded, texts of controls and menus are replaced with strings read from a <em>.strings</em> file.</p>
+
+<hr><h1>Instructions</h1>
+
+<p>First, put CePolyglotte.h and CePolyglotte.m into your Xcode project.</p>
+
+<p>Then do the following for every XIB file to translate:</p>
+
+<h2>Create an instance of CePolyglotte in the XIB</h2>
+
+<p>In Xcode 4 &gt; Object library (bottom right), locate <em>Object</em> (a blue cube), and drag it to the XIB.
+Change its class from <em>NSObjet</em> to <em>CePolyglotte</em>, using the Identity inspector (top right, 3rd tab).</p>
+
+<h2>Provide the top-level object(s)</h2>
+
+<p>The Polyglotte needs to get to the object which is the parent of the objects hierarchy. For that purpose it has three outlets:</p>
+
+<ul>
+<li>topLevelMenu is a NSMenu. This menu and every submenus will be translated.</li>
+<li>topLevelWindow is a NSWindow. This window and all its subviews will be translated.</li>
+<li>topLevelView is a NSView. This view and all its subviews will be translated.</li>
+</ul><p>Only the necessary outlets need be connected. For instance, in MainWindow.xib, you would only connect topLevelMenu to the application's menu bar, and topLevelWindow to the main window.</p>
+
+<h2>(Optionally) Provide the .strings file name</h2>
+
+<p>By default, translations are looked up in Localizable.strings. However, you may provide an other file name, and I strongly recommend you do so. By the way, using the same name for the .string file and the .xib file is a great idea.</p>
+
+<p>For that purpose, you would typically set the XIB's controller as the delegate of the Polyglotte, by connecting its <em>delegate</em> outlet to the <em>File's owner</em>. Then, in the controller's code, implement the <em>localizedStringsFile</em> method.
+E.g., to look up translations in <em>FormatSheetController.strings</em>:</p>
+
+<pre><code>// MARK: CePolyglotteDelegate methods
+- (NSString *) localizedStringsFile
+{
+    return @"FormatSheetController";
+}
+</code></pre>
+
+<p>This method is defined by the CePolyglotteDelegate protocol, but you do not have to explicitly declare that your controller conforms to this protocol.</p>
+
+<h2>Replace texts with keys in the XIB</h2>
+
+<p>The titles are used as keys in the strings file. For instance, you could set the title of a <em>Cancel button</em> to <em>cancelBtn</em>.</p>
+
+<h2>Provide the .strings file</h2>
+
+<p>This is a usual string file.
+e.g.:</p>
+
+<p>/en.lproj/FormatSheetController.strings</p>
+
+<pre><code>"cancelBtn" = "Cancel";
+</code></pre>
+
+<p>/fr.lproj/FormatSheetController.strings</p>
+
+<pre><code>"cancelBtn" = "Annuler";
+</code></pre>
+
+<h1>Features</h1>
+
+<h2>Supported</h2>
+
+<ul>
+<li>Controls: NSBox, NSButton, NSSegmentedControl, NSTextField</li>
+<li>Table views: NSTableColumn title</li>
+<li>Tooltips</li>
+<li>Menus</li>
+<li>Window title and toolbars</li>
+</ul><h2>Not supported yet</h2>
+
+<ul>
+<li>Text bindings</li>
+<li>NSMatrices</li>
+<li>Maybe some objects I might have forgotten (please let me know).</li>
+<li>Resizing (make your controls large enough for translations to fit!)</li>
+</ul>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Cepolyglotte maintained by <a href="https://github.com/Ceroce">Ceroce</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
